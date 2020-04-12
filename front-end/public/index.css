@@ -1,0 +1,123 @@
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+html, body {
+  background: #E0E1D6;
+}
+
+#app {
+  --color-primary: #004FFF;
+  --color-primary-90: #004FFFE6;
+  --color-primary-80: #004FFFCC;
+  --color-primary-70: #004FFFB3;
+  --color-primary-light: #739FFF;
+  --color-primary-light-90: #739FFFE6;
+  --color-primary-light-80: #739FFFCC;
+  --color-primary-light-70: #739FFFB3;
+  --color-primary-light-60: #739FFF99;
+  --color-primary-light-50: #739FFF80;
+  --color-primary-light-40: #739FFF66;
+  --color-primary-light-30: #739FFF4D;
+  --color-primary-light-20: #739FFF33;
+  --color-primary-light-10: #739FFF1A;
+  --color-primary-dark: #003ABA;
+  --color-secondary: #621B00;
+  --color-secondary-light: #7E442E;
+  --color-secondary-dark: #511700;
+  --color-error: #B23A48;
+  --color-error-light: #D5939B;
+  --color-error-dark: #72252E;
+  --color-background: #E0E1D6;
+  --color-background-lvl1: #F6F7EB;
+  --color-background-lvl2: #F7F8EE;
+  --color-text-primary: #000;
+  --color-text-secondary: rgba(0,0,0,.87);
+  --color-text-light: rgba(0,0,0,.6);
+  --color-text-lightest: rgba(0,0,0,.4);
+
+  --shadow-2dp: 0 3px 1px -2px rgba(0,0,0,.2),
+    0 2px 2px 0 rgba(0,0,0,.14),
+    0 1px 5px 0 rgba(0,0,0,.12);
+  --shadow-4dp: 0 2px 4px -1px rgba(0,0,0,.2),
+    0 4px 5px 0 rgba(0,0,0,.14),
+    0 1px 10px 0 rgba(0,0,0,.12);
+  --shadow-6dp: 0 3px 5px -1px rgba(0,0,0,.2),
+    0 6px 10px 0 rgba(0,0,0,.14),
+    0 1px 18px 0 rgba(0,0,0,.12);
+  --shadow-8dp: 0 5px 5px -3px rgba(0,0,0,.2),
+    0 8px 10px 1px rgba(0,0,0,.14),
+    0 3px 14px 2px rgba(0,0,0,.12);
+
+  font-family: 'Baloo Paaji 2', sans-serif;
+  color: var(--color-text-primary);
+  background: var(--color-background);
+}
+
+button {
+  box-shadow: none;
+  outline: none;
+  padding: 8px 12px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+}
+
+button .material-icons {
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+button[type="outlined"] {
+  background: transparent;
+  border: 1px solid var(--color-primary-light);
+  color: var(--color-primary-light);
+}
+
+button[type="outlined"]:hover,
+  button[type="outlined"]:focus {
+  background: var(--color-primary-light-10);
+}
+
+button[type="outlined"]:active {
+  background: var(--color-primary-light-20);
+}
+
+button[type="raised"] {
+  background: var(--color-primary);
+  box-shadow: var(--shadow-2dp);
+  color: white;
+}
+
+button[type="raised"]:hover,
+  button[type="raised"]:focus {
+  background: var(--color-primary-80);
+  box-shadow: var(--shadow-4dp);
+}
+
+button[type="raised"]:active {
+  background: var(--color-primary-90);
+  box-shadow: none;
+}
+
+button[type="text"] {
+  background: transparent;
+  color: var(--color-primary-dark);
+}
+
+button[type="text"]:hover,
+  button[type="text"]:focus {
+  background: var(--color-primary-light-30);
+}
+
+button[type="text"]:active {
+  background: var(--color-primary-light-40);
+}
