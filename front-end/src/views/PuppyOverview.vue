@@ -29,8 +29,22 @@
       </div>
     </div>
     <div class="actions">
-      <PuppyActions />
+      <PuppyActions :puppy="puppy" :onDataChange="() => refetchHistory()"/>
     </div>
+    <div class="history">
+      <div v-if="historyLoading"><LoadingBlocks /></div>
+      <div v-else class="list">
+        <div v-for="entry in history" :key="entry._id">
+          <p v-if="entry.type === 'bathroom'">
+            {{puppy.name}} went {{entry.pee? entry.poop? 'pee & ' : 'pee' : ''}}{{entry.poop? 'poop' : ''}} {{entry.outside? 'outside' : 'inside'}}
+          </p>
+          <p v-else>
+            {{puppy.name}} went on a {{entry.distance}} {{entry.distance_unit}} walk at {{entry.location}}
+          </p>
+        </div>
+      </div>
+      <pre else>{{ JSON.stringify(history, null, 2) }}</pre>
+   </div>
     <div class="raw">
       <pre>{{ JSON.stringify(puppy, null, 2) }}</pre>
     </div>
@@ -57,14 +71,19 @@ export default {
     return {
       puppy: {},
       loading: false,
+      history: [],
+      historyLoading: false
     }
   },
   created() {
-    this.getPuppy(this.$route.params.id)
+    this.getPuppy()
+    this.getHistory(true)
   },
   methods: {
-    async getPuppy(id) {
+    async getPuppy() {
       this.loading = true;
+      const { id } = this.$route.params
+      console.log(id)
       try {
         let { data } = await axios.get(`/api/puppies/${id}`)
         this.puppy = data
@@ -74,6 +93,23 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    async getHistory(showLoading) {
+      this.historyLoading = showLoading
+      const { id } = this.$route.params
+      console.log(id)
+      try {
+        let { data } = await axios.get(`/api/puppies/${id}/history`)
+        this.history = data
+        return true
+      } catch (err) {
+        window.console.error(err)
+      } finally {
+        this.historyLoading = false
+      }
+    },
+    async refetchHistory() {
+      this.getHistory(false)
     },
     formatBirthday() {
       const { birthday } = this.puppy

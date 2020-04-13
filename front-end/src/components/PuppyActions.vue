@@ -12,15 +12,6 @@
       <div class="modalContents">
         <h2>New Potty Entry</h2>
         <div class="form">
-          <span class="formLabel">What Time?</span>
-          <label>
-            <input type="radio" v-model="showDatePicker" :value="false">
-            Just Now
-          </label>
-          <label>
-            <input type="radio" v-model="showDatePicker" :value="true">
-            Earlier
-          </label>
           <p class="date">
             <span class="label">Date</span>
             <span class="value">{{formattedDate}}</span>
@@ -35,26 +26,89 @@
               <select v-model="minute" @change="handleMinuteChange($event)">
                 <option v-for="i in 59" :key="i" :value="i">{{formatInt(i)}}</option>
               </select>
-              <label>
-                <input type="radio" v-model="tod" value="am">
-                AM
-              </label>
-              <label v-show="showPM">
-                <input type="radio" v-model="tod" value="pm">
-                PM
-              </label>
             </span>
+            <div class="options">
+              <span class="option" :active="tod === 'am'" @click="tod = 'am'">AM</span>
+              <span class="option" v-show="showPM" :active="tod === 'pm'" @click="tod = 'pm'">PM</span>
+            </div>
+          </div>
+          <div class="whenOption">
+            <p>When?</p>
+            <div class="options">
+              <span class="option" :active="!showDatePicker" @click="handleJustNowClick()">Just Now</span>
+              <span class="option" :active="showDatePicker" @click="showDatePicker = true">Earlier</span>
+            </div>
+          </div>
+          <div class="pottyOption">
+            <p>What did {{ puppy.name }} do?</p>
+            <div class="options">
+              <span class="option" :active="pottyOption === 'pee'" @click="pottyOption = 'pee'">Pee</span>
+              <span class="option" :active="pottyOption === 'poop'" @click="pottyOption = 'poop'">Poop</span>
+              <span class="option" :active="pottyOption === 'both'" @click="pottyOption = 'both'">Both</span>
+            </div>
+          </div>
+          <div class="whereOption">
+            <p>Where?</p>
+            <div class="options">
+              <span class="option good" :active="whereOption === 'outside'" @click="whereOption = 'outside'">Outside</span>
+              <span class="option bad" :active="whereOption === 'inside'" @click="whereOption = 'inside'">Inside</span>
+            </div>
           </div>
         </div>
         <div class="buttons">
           <button type="text" @click="formType=null">cancel</button>
-          <button type="raised">save</button>
+          <button v-if="!submitting" type="raised" @click="() => handlePottySubmit()">{{submitting ? 'saving...' : 'save'}}</button>
+          <button v-else disabled type="raised">saving...</button>
         </div>
       </div>
     </Dialog>
     <Dialog v-show="formType === 'walk'" @close="formType=null">
-      <div class="form">
-
+      <div class="modalContents">
+        <h2>New Walk Entry</h2>
+        <div class="form">
+          <p class="date">
+            <span class="label">Date</span>
+            <span class="value">{{formattedDate}}</span>
+          </p>
+          <div v-show="showDatePicker" class="date-picker">
+            <input type="date" v-model="date" :max="maxDate" @change="handleDateChange($event)" />
+            <span class="time">
+              <select v-model="hour" @change="handleHourChange($event)">
+                <option v-for="i in 12" :key="i" :value="i">{{formatInt(i)}}</option>
+              </select>
+              :
+              <select v-model="minute" @change="handleMinuteChange($event)">
+                <option v-for="i in 59" :key="i" :value="i">{{formatInt(i)}}</option>
+              </select>
+            </span>
+            <div class="options">
+              <span class="option" :active="tod === 'am'" @click="tod = 'am'">AM</span>
+              <span class="option" v-show="showPM" :active="tod === 'pm'" @click="tod = 'pm'">PM</span>
+            </div>
+          </div>
+          <div class="whenOption">
+            <p>When?</p>
+            <div class="options">
+              <span class="option" :active="!showDatePicker" @click="handleJustNowClick()">Just Now</span>
+              <span class="option" :active="showDatePicker" @click="showDatePicker = true">Earlier</span>
+            </div>
+          </div>
+          <p>Where?</p>
+          <Input type="text" v-model="location" placeholder="Location"/>
+          <p>How far did {{ puppy.name }} walk?</p>
+          <div class="distance">
+            <Input type="number" v-model="distance" min="0" />
+            <div class="switcher">
+              <span class="option" :active="unit === 'mi'" @click="unit = 'mi'">mi</span>
+              <span class="option" :active="unit === 'km'" @click="unit = 'km'">km</span>
+            </div>
+          </div>
+        </div>
+        <div class="buttons">
+          <button type="text" @click="formType=null">cancel</button>
+          <button v-if="!submitting" type="raised" @click="() => handleWalkSubmit()">{{submitting ? 'saving...' : 'save'}}</button>
+          <button v-else disabled type="raised">saving...</button>
+        </div>
       </div>
     </Dialog>
   </div>
@@ -62,12 +116,16 @@
 
 <script>
 import Dialog from './Dialog.vue'
+import Input from './Input.vue'
+import axios from 'axios'
 import moment from 'moment'
 
 export default {
   name: 'PuppyActions',
+  props: ['puppy', 'onDataChange'],
   components: {
-    Dialog
+    Dialog,
+    Input
   },
   data() {
     return {
@@ -77,17 +135,94 @@ export default {
       hour: moment().format('h'),
       minute: moment().format('m'),
       tod: moment().format('a'),
+      pottyOption: 'pee',
+      whereOption: 'outside',
+      distance: 0,
+      unit: 'mi',
+      location: '',
+      submitting: false,
     }
   },
   methods: {
     openPottyForm() {
+      this.resetForm()
       this.formType = 'potty'
     },
     openWalkForm() {
+      this.resetForm()
       this.formType = 'walk'
+    },
+    async handlePottySubmit() {
+      this.submitting = true
+      const { _id } = this.puppy
+      const { pottyOption, whereOption } = this
+      try {
+        axios.post(`/api/puppies/${_id}/bathrooms`, {
+          date: this.getDateForApi(),
+          poop: pottyOption === 'poop' || pottyOption === 'both',
+          pee: pottyOption === 'pee' || pottyOption === 'both',
+          outside: whereOption === 'outside',
+          puppy_id: _id
+        })
+        if (this.onDataChange && typeof this.onDataChange === 'function'){
+          this.onDataChange()
+        }
+        this.formType = null
+      } catch (error) {
+        window.console.error(error)
+      } finally {
+        this.submitting = false
+      }
+    },
+    async handleWalkSubmit() {
+      this.submitting = true
+      const { _id } = this.puppy
+      const { distance, unit, location } = this
+      try {
+        axios.post(`/api/puppies/${_id}/walks`, {
+          date: this.getDateForApi(),
+          distance,
+          distance_unit: unit,
+          location,
+          puppy_id: _id
+        })
+        if (this.onDataChange && typeof this.onDataChange === 'function'){
+          this.onDataChange()
+        }
+        this.formType = null
+      } catch (error) {
+        window.console.error(error)
+      } finally {
+        this.submitting = false
+      }
     },
     formatInt(i){
       return i > 9 ? i : `0${i}`
+    },
+    getDateForApi(){
+      const { date, hour, minute, tod } = this
+      let mmnt = moment(`${date} ${hour}:${minute}${tod}`, 'YYYY-MM-DD h:ma')
+      return new Date(mmnt)
+    },
+    handleJustNowClick() {
+      this.date = moment().format('YYYY-MM-DD')
+      this.hour = moment().format('h')
+      this.minute = moment().format('m')
+      this.tod = moment().format('a')
+      this.showDatePicker = false
+    },
+    resetForm() {
+      this.showDatePicker = false
+      this.date = moment().format('YYYY-MM-DD')
+      this.hour = moment().format('h')
+      this.minute = moment().format('m')
+      this.tod = moment().format('a')
+      this.pottyOption = 'pee'
+      this.whereOption = 'outside'
+      this.submitting = false
+      this.distance = 0
+      this.unit = 'mi'
+      this.location = ''
     },
     handleDateChange(ev) {
       const { value } = ev.target
@@ -148,8 +283,10 @@ export default {
       return moment().format('YYYY-MM-DD')
     },
     formattedDate() {
-      return moment().format('dddd, MMMM Do, YYYY @ h:mm a')
-    }
+      const { date, hour, minute, tod } = this
+      return moment(`${date} ${hour}:${minute}${tod}`, 'YYYY-MM-DD h:ma')
+        .format('dddd, MMMM Do, YYYY @ h:mm a')
+    },
   }
 }
 </script>
@@ -287,5 +424,95 @@ select {
 
 .date .value {
   letter-spacing: .8px;
+}
+
+.distance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form .input {
+  margin: 0;
+}
+
+.distance .input input {
+  text-align: center;
+}
+
+.distance .switcher {
+  margin-left: 24px;
+  height: 32px;
+  width: 30%;
+}
+
+.distance .switcher .option {
+  padding: 2px 6px;
+}
+
+.options, .switcher {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switcher {
+  justify-content: center;
+}
+
+.options .option, .switcher .option {
+  display: inline-block;
+  text-align: center;
+  border: 1px solid rgba(0,0,0,.3);
+  color: var(--color-text-light);
+  border-radius: 4px;
+  padding: 6px 0px;
+  cursor: pointer;
+}
+
+.switcher .option:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.switcher .option:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.options .option[active="true"], .switcher .option[active="true"] {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary-70);
+  color: white;
+}
+
+.option.good[active="true"] {
+  border: 1px solid var(--color-success);
+  background: var(--color-success-70);
+}
+
+.option.bad[active="true"] {
+  border: 1px solid var(--color-error);
+  background: var(--color-error-70);
+}
+
+.pottyOption .option {
+  width: 30%;
+}
+
+.whereOption .option, .whenOption .option {
+  width: 45%;
+}
+
+.date-picker .options {
+  width: 80px;
+}
+
+.date-picker .options .option {
+  width: 45%;
+  font-size: 14px;
+  line-height: 23px;
+  padding: 6px 0px;
 }
 </style>

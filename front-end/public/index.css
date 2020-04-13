@@ -28,8 +28,12 @@ html, body {
   --color-secondary: #621B00;
   --color-secondary-light: #7E442E;
   --color-secondary-dark: #511700;
+  --color-success: #50C878;
+  --color-success-70: #50C878B3;
   --color-error: #B23A48;
+  --color-error-70: #B23A48B3;
   --color-error-light: #D5939B;
+  --color-error-light-70: #D5939BB3;
   --color-error-dark: #72252E;
   --color-background: #E0E1D6;
   --color-background-lvl1: #F6F7EB;
@@ -106,6 +110,13 @@ button[type="raised"]:hover,
 button[type="raised"]:active {
   background: var(--color-primary-90);
   box-shadow: none;
+}
+
+button:disabled[type="raised"] {
+  background: var(--color-text-light);
+  color: var(--color-text-lightest);
+  box-shadow: none;
+  cursor: default;
 }
 
 button[type="text"] {

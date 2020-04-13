@@ -38,6 +38,7 @@ const bathroomSchema = new mongoose.Schema({
   date: Date,
   poop: Boolean,
   pee: Boolean,
+  outside: Boolean,
   puppy_id: mongoose.Schema.Types.ObjectId,
 })
 
@@ -90,17 +91,35 @@ app.get('/api/puppies/:id', async (req, res) => {
   }
 })
 
+app.get('/api/puppies/:id/history', async (req, res) => {
+  const { id } = req.params
+  debug_puppy(`GET\t/api/puppies/${id}/history`)
+  try {
+    let bathrooms = await Bathroom.find({puppy_id: id})
+    bathrooms = bathrooms.map(b => ({...b.toObject(), type: 'bathroom'}))
+    let walks = await Walk.find({puppy_id: id})
+    walks = walks.map(w => ({...w.toObject(), type: 'walk'}))
+    let history = [...bathrooms, ...walks]
+    history = history.sort((a,b) => a.date < b.date).splice(0,50)
+    debug_puppy(`Successfully retrieved history for puppy ${id}`)
+    res.send(history)
+  } catch (error) {
+    debug_puppy(`ERROR :: ${error}`)
+    res.sendStatus(500)
+  }
+})
+
 app.post('/api/puppies', async (req, res) => {
   const { name, birthday, breed, image, owners } = req.body
   debug_puppy(`POST\t/api/puppies/\nBODY: ${req.body}`)
-  const puppy = new Puppy({
-    name,
-    birthday: new Date(birthday),
-    breed,
-    image,
-    owners,
-  })
   try {
+    const puppy = new Puppy({
+      name,
+      birthday: new Date(birthday),
+      breed,
+      image,
+      owners,
+    })
     await puppy.save()
     debug_puppy(`Successfully added new puppy, ${name}, to DB`)
     res.send(puppy)
@@ -170,7 +189,23 @@ app.get('/api/puppies/:id/bathrooms', async (req, res) => {
 })
 
 app.post('/api/puppies/:id/bathrooms', async (req, res) => {
-  res.sendStatus(501)
+  const { id } = req.params
+  const { date, poop, pee, outside } = req.body
+  debug_bathroom(`POST\t/api/puppies/${id}/bathrooms\nBODY: ${req.body}`)
+  try {
+    const bathroom = new Bathroom({
+      date: new Date(date),
+      poop,
+      pee,
+      outside,
+      puppy_id: id
+    })
+    await bathroom.save()
+    debug_bathroom(`Successfully added new bathroom for puppy ${id}`)
+  } catch (error) {
+    debug_bathroom(`ERROR :: ${error}`)
+    res.sendStatus(500)
+  }
 })
 
 app.put('/api/bathrooms/:id', async (req, res) => {
@@ -208,7 +243,23 @@ app.get('/api/puppies/:id/walks', async (req, res) => {
 })
 
 app.post('/api/puppies/:id/walks', async (req, res) => {
-  res.sendStatus(501)
+  const { id } = req.params
+  const { date, distance, distance_unit, location } = req.body
+  debug_walk(`POST\t/api/puppies/${id}/walks\nBODY: ${req.body}`)
+  try {
+    const walk = new Walk({
+      date: new Date(date),
+      distance,
+      distance_unit,
+      location,
+      puppy_id: id
+    })
+    await walk.save()
+    debug_walk(`Successfully added new walk for puppy ${id}`)
+  } catch (error) {
+    debug_bathroom(`ERROR :: ${error}`)
+    res.sendStatus(500)
+  }
 })
 
 app.put('/api/walks/:id', async (req, res) => {

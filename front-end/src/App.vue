@@ -127,5 +127,7 @@
   min-height: 100%;
   height: 100%;
   margin-left: 250px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 </style>

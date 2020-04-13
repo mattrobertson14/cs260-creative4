@@ -1,14 +1,14 @@
 <template>
   <span class="input">
     <span v-show="icon" class="material-icons">{{icon}}</span>
-    <input @input="handleInput($event.target.value)" :placeholder="placeholder" :type="type || 'text'">
+    <input @input="handleInput($event.target.value)" :placeholder="placeholder" :type="type || 'text'" :min="min" :value="value">
   </span>
 </template>
 
 <script>
 export default {
   name: 'Input',
-  props: ['value', 'placeholder', 'icon', 'type'],
+  props: ['value', 'placeholder', 'icon', 'type', 'min'],
   methods: {
     handleInput(val) {
       this.$emit('input', val)
