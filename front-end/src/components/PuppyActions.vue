@@ -1,7 +1,7 @@
 <template>
   <div class="PuppyActions">
     <div class="action" @click="openPottyForm()">
-      <i class="material-icons">priority_high</i>
+      <i class="fas fa-toilet"></i>
       <p>Record Potty</p>
     </div>
     <div class="action" @click="openWalkForm()">
@@ -165,7 +165,7 @@ export default {
           puppy_id: _id
         })
         if (this.onDataChange && typeof this.onDataChange === 'function'){
-          this.onDataChange()
+          await this.onDataChange()
         }
         this.formType = null
       } catch (error) {
@@ -187,7 +187,7 @@ export default {
           puppy_id: _id
         })
         if (this.onDataChange && typeof this.onDataChange === 'function'){
-          this.onDataChange()
+          await this.onDataChange()
         }
         this.formType = null
       } catch (error) {
@@ -233,12 +233,12 @@ export default {
     handleHourChange(ev) {
       const { value } = ev.target
       const mom = moment()
-      if (value > mom.format('h')
+      if (value > parseInt(mom.format('h'))
             && mom.format('YYYY-MM-DD') === this.date
             && this.tod === 'pm'
       ){
         this.tod = 'am'
-      } else if (value > mom.format('h') && mom.format('YYYY-MM-DD') === this.date){
+      } else if (value > parseInt(mom.format('h')) && mom.format('YYYY-MM-DD') === this.date){
         this.date = mom.subtract(1,'d').format('YYYY-MM-DD')
         this.tod = 'pm'
       }
@@ -248,22 +248,22 @@ export default {
       console.log(value)
       const mom = moment()
       if (
-        value > mom.format('m')
-          && mom.format('h') === this.hour
+        value > parseInt(mom.format('m'))
+          && parseInt(mom.format('h')) == this.hour
           && mom.format('YYYY-MM-DD') === this.date
           && this.hour > 1
       ){
         this.hour = this.hour - 1
       } else if (
-        value > mom.format('m')
-          && mom.format('h') === this.hour
+        value > parseInt(mom.format('m'))
+          && parseInt(mom.format('h')) == this.hour
           && mom.format('YYYY-MM-DD') === this.date
           && mom.format('a') === 'pm'
       ){
         this.tod = 'am'
       } else if (
-        value > mom.format('m')
-          && mom.format('h') === this.hour
+        value > parseInt(mom.format('m'))
+          && parseInt(mom.format('h')) == this.hour
           && mom.format('YYYY-MM-DD') === this.date
       ){
         this.date = mom.subtract(1, 'd').format('YYYY-MM-DD')

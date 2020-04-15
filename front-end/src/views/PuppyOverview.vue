@@ -32,22 +32,34 @@
       <PuppyActions :puppy="puppy" :onDataChange="() => refetchHistory()"/>
     </div>
     <div class="history">
-      <div v-if="historyLoading"><LoadingBlocks /></div>
+      <h2>Recent Activity</h2>
+      <div v-if="historyLoading" class="loading"><LoadingBlocks /></div>
       <div v-else class="list">
-        <div v-for="entry in history" :key="entry._id">
-          <p v-if="entry.type === 'bathroom'">
-            {{puppy.name}} went {{entry.pee? entry.poop? 'pee & ' : 'pee' : ''}}{{entry.poop? 'poop' : ''}} {{entry.outside? 'outside' : 'inside'}}
-          </p>
-          <p v-else>
-            {{puppy.name}} went on a {{entry.distance}} {{entry.distance_unit}} walk at {{entry.location}}
-          </p>
+        <div v-for="key in Object.keys(history)" :key="key">
+          <h3>{{formatDate(key)}}</h3>
+          <div v-for="entry in history[key]" :key="entry._id">
+            <p class="entry" v-if="entry.type === 'bathroom'">
+              <i class="fas fa-toilet"></i>
+              <span class="text">
+                <span class="line1">{{puppy.name}} went {{entry.pee? entry.poop? 'pee & ' : 'pee' : ''}}{{entry.poop? 'poop' : ''}} {{entry.outside? 'outside' : 'inside'}}</span>
+                <span class="line2">{{entry.time}}</span>
+              </span>
+              <span class="spacer" />
+              <i class="material-icons" @click="deleteBathroom(entry._id)">close</i>
+            </p>
+            <p class="entry" v-else>
+              <i class="material-icons">directions_walk</i>
+              <span class="text">
+                <span class="line1">{{puppy.name}} went on a {{entry.distance}} {{entry.distance_unit}} walk at {{entry.location}}</span>
+                <span class="line2">{{entry.time}}</span>
+              </span>
+              <span class="spacer" />
+              <i class="material-icons" @click="deleteWalk(entry._id)">close</i>
+            </p>
+          </div>
         </div>
       </div>
-      <pre else>{{ JSON.stringify(history, null, 2) }}</pre>
    </div>
-    <div class="raw">
-      <pre>{{ JSON.stringify(puppy, null, 2) }}</pre>
-    </div>
   </div>
   <div v-else-if="loading" class="loading">
     <LoadingBlocks />
@@ -71,8 +83,17 @@ export default {
     return {
       puppy: {},
       loading: false,
-      history: [],
-      historyLoading: false
+      history: {},
+      historyLoading: false,
+      formatDate: (date) => {
+        if (moment(date).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')){
+          return 'Today'
+        }
+        if (moment(date).format('YYYY-MM-DD') === moment().subtract(1,'d').format('YYYY-MM-DD')){
+          return 'Yesterday'
+        }
+        return moment(date).format('dddd - MM/DD/YYYY')
+      }
     }
   },
   created() {
@@ -83,7 +104,6 @@ export default {
     async getPuppy() {
       this.loading = true;
       const { id } = this.$route.params
-      console.log(id)
       try {
         let { data } = await axios.get(`/api/puppies/${id}`)
         this.puppy = data
@@ -97,10 +117,22 @@ export default {
     async getHistory(showLoading) {
       this.historyLoading = showLoading
       const { id } = this.$route.params
-      console.log(id)
       try {
         let { data } = await axios.get(`/api/puppies/${id}/history`)
-        this.history = data
+        let historyObj = {}
+        data.map(e => {
+          let obj = {
+            ...e,
+            time: moment(e.date).format('hh:mm a'),
+          }
+          let key = moment(e.date).format('YYYY-MM-DD')
+          if (!historyObj[key]){
+            historyObj[key] = [obj]
+          } else {
+            historyObj[key].push(obj)
+          }
+        })
+        this.history = historyObj
         return true
       } catch (err) {
         window.console.error(err)
@@ -109,7 +141,7 @@ export default {
       }
     },
     async refetchHistory() {
-      this.getHistory(false)
+      await this.getHistory(false)
     },
     formatBirthday() {
       const { birthday } = this.puppy
@@ -131,8 +163,29 @@ export default {
     handleAdminClick() {
       const { _id } = this.puppy
       this.$router.push(`/admin/puppies/${_id}`)
+    },
+    async deleteBathroom(id) {
+      try {
+        console.log('here')
+        await axios.delete(`/api/bathrooms/${id}`)
+        console.log('here2')
+        await this.getHistory(false)
+        console.log('here3')
+      } catch (err) {
+        window.console.error(err)
+      }
+    },
+    async deleteWalk(id) {
+      try {
+        await axios.delete(`/api/walks/${id}`)
+        return true
+      } catch (err) {
+        window.console.error(err)
+      } finally {
+        this.refetchHistory()
+      }
     }
-  }
+  },
 }
 </script>
 
@@ -193,4 +246,50 @@ export default {
   width: 100%;
 }
 
+.history {
+  width: 500px;
+  margin: 0px auto;
+}
+
+.entry {
+  height: 65px;
+  margin-bottom: 6px;
+  margin-top: 0px;
+  background: var(--color-background-lvl1);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.line2 {
+  display: block;
+  line-height: 14px;
+  font-size: 14px;
+  color: var(--color-text-light);
+}
+
+.entry .text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.entry i {
+  margin: 0px 12px;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.entry i:first-child {
+  color: var(--color-primary);
+  cursor: initial;
+}
+
+.list h3 {
+  color: var(--color-text-secondary);
+}
 </style>

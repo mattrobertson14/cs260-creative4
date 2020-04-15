@@ -100,7 +100,7 @@ app.get('/api/puppies/:id/history', async (req, res) => {
     let walks = await Walk.find({puppy_id: id})
     walks = walks.map(w => ({...w.toObject(), type: 'walk'}))
     let history = [...bathrooms, ...walks]
-    history = history.sort((a,b) => a.date < b.date).splice(0,50)
+    history = history.sort((a,b) => b.date - a.date).splice(0,50)
     debug_puppy(`Successfully retrieved history for puppy ${id}`)
     res.send(history)
   } catch (error) {
@@ -202,6 +202,7 @@ app.post('/api/puppies/:id/bathrooms', async (req, res) => {
     })
     await bathroom.save()
     debug_bathroom(`Successfully added new bathroom for puppy ${id}`)
+    res.send(bathroom)
   } catch (error) {
     debug_bathroom(`ERROR :: ${error}`)
     res.sendStatus(500)
@@ -213,7 +214,16 @@ app.put('/api/bathrooms/:id', async (req, res) => {
 })
 
 app.delete('/api/bathrooms/:id', async (req, res) => {
-  res.sendStatus(501)
+  const { id } = req.params
+  debug_bathroom(`DELETE\t/api/bathrooms/${id}`)
+  try {
+    await Bathroom.deleteOne({_id: id})
+    debug_bathroom('Successfully deleted bathroom entry')
+    res.sendStatus(200)
+  } catch (error) {
+    debug_bathroom(`ERROR :: ${error}`)
+    res.sendStatus(500)
+  }
 })
 
 // Puppy Endpoints
@@ -256,6 +266,7 @@ app.post('/api/puppies/:id/walks', async (req, res) => {
     })
     await walk.save()
     debug_walk(`Successfully added new walk for puppy ${id}`)
+    res.send(walk)
   } catch (error) {
     debug_bathroom(`ERROR :: ${error}`)
     res.sendStatus(500)
@@ -267,7 +278,16 @@ app.put('/api/walks/:id', async (req, res) => {
 })
 
 app.delete('/api/walks/:id', async (req, res) => {
-  res.sendStatus(501)
+  const { id } = req.params
+  debug_walk(`DELETE\t/api/walks/${id}`)
+  try {
+    await Walk.deleteOne({_id: id})
+    debug_walk('Successfully deleted walk entry')
+    res.sendStatus(200);
+  } catch (error) {
+    debug_walk(`ERROR :: ${error}`)
+    res.sendStatus(500)
+  }
 })
 
 app.listen(3001, () => debug_server('Server listening on port 3001'));

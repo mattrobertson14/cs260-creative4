@@ -31,6 +31,8 @@ export default {
 
 .modal > div {
   box-shadow: var(--shadow-8dp);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .default {

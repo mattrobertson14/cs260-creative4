@@ -8,7 +8,7 @@
         </router-link>
       </div>
       <div class="links">
-        <router-link to="/" class="home">
+        <router-link to="/" class="home main-link">
           <i class="material-icons">home</i>
           Home
         </router-link>
@@ -16,9 +16,9 @@
           <i class="material-icons">pets</i>
           Puppies
         </router-link>
-        <router-link to="/about" class="main-link">
-          <i class="material-icons">info</i>
-          About
+        <router-link to="/admin" class="main-link">
+          <i class="material-icons">build</i>
+          Admin
         </router-link>
       </div>
       <span class="spacer" />
@@ -66,7 +66,7 @@
   border-radius: 8px;
 }
 
-#nav .main-link.router-link-active,
+#nav .main-link.router-link-active:not(.home),
   #nav .home.router-link-exact-active {
   background: var(--color-primary);
   border-radius: 8px;
@@ -108,7 +108,10 @@
 }
 
 .spacer {
-  flex: 1;
+  flex: 1
+}
+
+#nav .spacer {
   border-bottom: 1px solid rgba(255,255,255,.3);
   margin: 0px 8px;
 }
