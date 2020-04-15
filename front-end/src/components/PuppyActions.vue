@@ -245,7 +245,6 @@ export default {
     },
     handleMinuteChange(ev) {
       const { value } = ev.target
-      console.log(value)
       const mom = moment()
       if (
         value > parseInt(mom.format('m'))
