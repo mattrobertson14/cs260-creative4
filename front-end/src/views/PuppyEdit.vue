@@ -211,4 +211,12 @@ input[type="date"] {
   font-size: 14px;
   height: 35px;
 }
+
+@media only screen and (max-width: 799px) {
+  .PuppyEdit {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+  }
+}
 </style>

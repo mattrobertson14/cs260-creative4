@@ -71,4 +71,10 @@ export default {
 .home .content h1 {
   text-align: center;
 }
+
+@media only screen and (max-width: 750px) {
+  .home .content {
+    padding: 0px 12px;
+  }
+}
 </style>

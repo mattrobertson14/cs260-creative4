@@ -515,4 +515,10 @@ select {
   line-height: 23px;
   padding: 6px 0px;
 }
+
+@media only screen and (max-width: 799px) {
+  .modalContents {
+    width: 100%;
+  }
+}
 </style>

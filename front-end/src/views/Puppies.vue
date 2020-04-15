@@ -21,4 +21,11 @@ export default {
   box-sizing: border-box;
   padding: 32px;
 }
+
+@media only screen and (max-width: 799px) {
+  .Puppies {
+    padding: 12px;
+    width: 100%;
+  }
+}
 </style>

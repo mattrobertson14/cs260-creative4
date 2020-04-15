@@ -292,4 +292,41 @@ export default {
 .list h3 {
   color: var(--color-text-secondary);
 }
+
+.break {
+  display: none;
+}
+
+@media only screen and (max-width: 799px) {
+  .PuppyOverview {
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: 32px;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+  
+  .header .avatar {
+    margin: 0px;
+  }
+
+  .header .info h2 {
+    text-align: center;
+  }
+
+  .header .spacer {
+    display: none;
+  }
+
+  .header .buttons {
+    margin-top: 16px;
+  }
+
+  .history {
+    width: 100%;
+  }
+}
 </style>

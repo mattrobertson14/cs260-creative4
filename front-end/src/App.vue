@@ -1,22 +1,29 @@
 <template>
   <div id="app">
-    <div id="nav">
+    <div id="appbar">
+      <i class="material-icons" @click="showSidebar=true">menu</i>
+      <router-link to="/" @click.native="showSidebar=false">
+        Puppy Tracker
+      </router-link>
+    </div>
+    <div id="nav" :class="showSidebar? 'show' : ''">
       <div class="header">
-        <router-link to="/">
+        <router-link to="/" @click.native="showSidebar=false">
           <i class="material-icons">insert_chart_outlined</i>
           Puppy Tracker
         </router-link>
+        <i class="material-icons close" v-show="showSidebar" @click="showSidebar=false">close</i>
       </div>
       <div class="links">
-        <router-link to="/" class="home main-link">
+        <router-link to="/" class="home main-link" @click.native="showSidebar=false">
           <i class="material-icons">home</i>
           Home
         </router-link>
-        <router-link to="/puppies" class="main-link">
+        <router-link to="/puppies" class="main-link" @click.native="showSidebar=false">
           <i class="material-icons">pets</i>
           Puppies
         </router-link>
-        <router-link to="/admin" class="main-link">
+        <router-link to="/admin" class="main-link" @click.native="showSidebar=false">
           <i class="material-icons">build</i>
           Admin
         </router-link>
@@ -34,6 +41,16 @@
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      showSidebar: false,
+    }
+  }
+}
+</script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Alegreya+Sans+SC:wght@500&display=swap');
@@ -79,12 +96,18 @@
   width: 18px;
 }
 
+#nav .header {
+  border-bottom: 1px solid rgba(255,255,255,.3);
+  padding: 24px 12px;
+  margin: 4px 8px;
+}
+
 #nav .header a {
   font-family: 'Alegreya Sans SC', sans-serif;
   text-transform: small-caps;
   font-size: 24px;
-  padding: 24px 12px;
-  border-bottom: 1px solid rgba(255,255,255,.3);
+  padding: 0;
+  margin: 0;
 }
 
 #nav .header .material-icons {
@@ -132,5 +155,82 @@
   margin-left: 250px;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+#appbar {
+  display: none;
+}
+
+@media only screen and (max-width: 799px) {
+  #app {
+    box-sizing: border-box;
+  }
+  
+  #nav {
+    left: calc(100vw * -1);
+    z-index: 100;
+    height: 100%;
+    width: 100%;
+    transition: left .2s ease-in-out;
+  }
+
+  #nav.show {
+    left: 0;
+  }
+
+  #nav .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  #nav .header i.close {
+    background: none;
+    color: white;
+  }
+
+  #content {
+    width: 100vw;
+    margin-left: 0;
+    margin-top: 60px;
+    padding-bottom: 64px;
+  }
+
+  #appbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    display: flex;
+    background: var(--color-primary);
+    width: 100vw;
+    align-items: center;
+    justify-self: start;
+    padding: 12px;
+    height: 60px;
+    box-sizing: border-box;
+  }
+
+  #appbar i {
+    color: white;
+  }
+
+  #appbar a {
+    display: flex;
+    margin-left: 16px;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    font-size: 20px;
+  }
+
+  #appbar a i {
+    background: var(--color-background);
+    color: var(--color-primary);
+    padding: 4px;
+    font-size: 16px;
+    border-radius: 12px;
+    margin-right: 8px;
+  }
 }
 </style>

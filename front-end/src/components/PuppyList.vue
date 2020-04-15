@@ -248,4 +248,11 @@ input[type="date"] {
   font-size: 14px;
   height: 35px;
 }
+
+@media only screen and (max-width: 799px) {
+  .root {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
 </style>

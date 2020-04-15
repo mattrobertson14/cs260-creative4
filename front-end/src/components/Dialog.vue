@@ -40,4 +40,14 @@ export default {
   width: 200px;
   height: 100px;
 }
+
+@media only screen and (max-width: 799px) {
+  .modal {
+    z-index: 1000;
+  }
+
+  .modal > div {
+    max-height: 80%;
+  }
+}
 </style>

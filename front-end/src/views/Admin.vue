@@ -46,4 +46,12 @@ export default {
   background: rgba(0,0,0,.1);
   border-bottom: 2px solid var(--color-primary);
 }
+
+@media only screen and (max-width: 799px) {
+  .admin {
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
 </style>
