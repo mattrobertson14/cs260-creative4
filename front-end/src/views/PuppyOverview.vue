@@ -166,11 +166,8 @@ export default {
     },
     async deleteBathroom(id) {
       try {
-        console.log('here')
         await axios.delete(`/api/bathrooms/${id}`)
-        console.log('here2')
         await this.getHistory(false)
-        console.log('here3')
       } catch (err) {
         window.console.error(err)
       }
